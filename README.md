@@ -10,9 +10,9 @@ c+Linux
 1）用户登录（用户名+密码）  
 2）显示目录：ls  
 3）转换目录：  
-  到指定目录：cd /dirName  
-  到上一级目录：cd ..  
-  到当前目录：cd .  
+&emsp&emsp到指定目录：cd /dirName  
+&emsp&emsp到上一级目录：cd ..  
+&emsp&emsp到当前目录：cd .  
 4）下载文件：get fileName  
 5）退出客户端：bye  
 
