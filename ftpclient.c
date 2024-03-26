@@ -21,6 +21,8 @@ typedef struct List
 	char filename[40];
 }List;
 
+//显示帮助
+void help(void);
 //配置ftp会话参数
 void ex(void);
 //显示当前工作目录名称
@@ -35,6 +37,8 @@ void download(char* get);
 
 int main(int argc,char* argv[])
 {	
+	printf("Welcome, type \'help\' for help message.\n");
+	printf("\n");
 	//用c_ip存储用户输入的ftp服务器ip地址
 	char c_ip[40] = {};
 	strcpy(c_ip,argv[1]);
@@ -47,7 +51,7 @@ int main(int argc,char* argv[])
 		return -1;
 	}
 
-	printf("Connected to %s.\n",c_ip);
+	printf("Connected to %s\n",c_ip);
 
 	nrecv(nw,buf,sizeof(buf));
 	printf("%s",buf);
@@ -119,7 +123,8 @@ int main(int argc,char* argv[])
 			ls();
 		if(strcmp(cmd,"pwd")==0)
 			pwd();
-
+		if(strcmp(cmd,"help")==0)
+			help();
 		//获取命令+参数
 		char *cmd1 = malloc(20);
 		char *path = malloc(100);
@@ -135,6 +140,29 @@ int main(int argc,char* argv[])
 	}
 
 	printf("221 Goodbye.\n");
+}
+
+void help(void)
+{
+	printf("\n");
+	printf("This is an FTP client program designed for a university computer network course.\n");
+	printf("If you have any problem during use, please:\n");
+	printf("A. read this massage again\n");
+	printf("B. contact me at leezy016@foxmail.com\n");
+	printf("C. use a real FTP client\n");
+	printf("THANK YOU\n");
+	printf("\n");
+	printf("Commands and usage:\n");
+	printf("ls:   Print subdirectories and files in the working directory\n");
+	printf("pwd:  Print the name of the working directory\n");
+	printf("cd:   Change directory\n");
+	printf("        To a specified directory: cd /dirName\n");
+	printf("        To the parent directory: cd ..\n");
+	printf("        To the current directory: cd .\n");
+	printf("get:  Download file, use as: get fileName\n");
+	printf("help: Show this help message\n");
+	printf("bye:  Exit client\n");
+	printf("\n");
 }
 
 //配置ftp会话参数
@@ -233,13 +261,13 @@ void ls(void)
 //下载
 void download(char* get)
 {
-	// 发送 LIST 命令获取文件列表
+    //发送LIST命令获取文件列表
     sprintf(buf,"LIST\n");
     nsend(nw,buf,strlen(buf));
     bzero(buf,sizeof(buf));
     nrecv(nw,buf,sizeof(buf));
 
-    // 检查文件是否存在于文件列表中
+    //检查文件是否存在于文件列表中
     if (strstr(buf, get) == NULL) {
         printf("File %s does not exist in the current directory on the server.\n", get);
         return;
