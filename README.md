@@ -1,7 +1,7 @@
 # cFtpClient
 
 ### 环境
-(a) mac Zsh  (b) Ubuntu 18.04
+(a) mac Zsh  (b) Ubuntu 18.04  
 c+Linux  
 gcc  
 
@@ -10,7 +10,8 @@ gcc
 目前实现的功能：  
 1）用户登录（用户名+密码）  
 2）显示目录：ls  
-3）转换目录：  
+3）打印当前工作目录名称
+3）转换目录：cd  
 &emsp;&emsp;到指定目录：cd /dirName  
 &emsp;&emsp;到上一级目录：cd ..  
 &emsp;&emsp;到当前目录：cd .  

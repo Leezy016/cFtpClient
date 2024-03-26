@@ -1,5 +1,5 @@
-#include <stdio.h>>
-#include <stdlib.h>>
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
@@ -10,7 +10,7 @@
 // 创建网络连接
 NetWork* open_network(char c_or_s,int type,char* ip,uint16_t port)
 {
-	// 在堆上创建NetWork结构
+	// 创建NetWork结构的对象nw
 	NetWork* nw = malloc(sizeof(NetWork));
 	if(NULL == nw)
 	{
@@ -34,61 +34,34 @@ NetWork* open_network(char c_or_s,int type,char* ip,uint16_t port)
 	nw->len = sizeof(nw->addr);
 	nw->type = type;
 
-	//下面这个if段代码还没看
-	if('s' == c_or_s)
+	if(connect(nw->fd,(SP)&nw->addr,nw->len))
 	{
-		if(bind(nw->fd,(SP)&nw->addr,nw->len))
-		{
-			perror("network bind");
-			free(nw);
-			return NULL;
-		}
-
-		if(SOCK_STREAM == type && listen(nw->fd,50))
-		{
-			perror("network listen");
-			free(nw);
-			return NULL;
-		}
-	}
-	else if(SOCK_STREAM == type)
-	{
-		if(connect(nw->fd,(SP)&nw->addr,nw->len))
-		{
-			perror("network connect");
-			free(nw);
-			return NULL;
-		}	
-	}
+		perror("network connect");
+		free(nw);
+		return NULL;
+	}	
 
 	return nw;
 }
 
-// TCP的server专用
-NetWork* accept_network(NetWork* nw)
+//关闭网络连接
+void close_network(NetWork* nw)
 {
-	if(SOCK_STREAM != nw->type)
+	if(close(nw->fd))
 	{
-		printf("network accept socket type error!\n");
-		return NULL;
+		perror("network close");
 	}
+	free(nw);
+}
 
-	NetWork* clinw = malloc(sizeof(NetWork));
-	if(NULL == clinw)
-	{
-		perror("network accept malloc");
-		return NULL;
-	}
-	
-	clinw->type = nw->type;
-	clinw->len = sizeof(clinw->addr);
-	clinw->fd = accept(nw->fd,(SP)&clinw->addr,&clinw->len);
-	if(0 > clinw->fd)
-	{
-		perror("network accept");
-		free(clinw);
-		return NULL;
-	}
+//发送数据
+int nsend(NetWork* nw,void* buf,uint32_t len)
+{
+	return send(nw->fd,buf,len,0);
+}
 
-	return clinw;
+//接收数据
+int nrecv(NetWork* nw,void* buf,uint32_t len)
+{
+	return recv(nw->fd,buf,len,0);
 }
