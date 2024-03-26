@@ -105,8 +105,7 @@ int main(int argc,char* argv[])
 	}
 
 	//配置ftp会话参数(UTF8编码)
-	ex();
-	
+	ex();	
 
 	char cmd[40] = {};
 	while(1)
@@ -234,6 +233,17 @@ void ls(void)
 //下载
 void download(char* get)
 {
+	// 发送 LIST 命令获取文件列表
+    sprintf(buf,"LIST\n");
+    nsend(nw,buf,strlen(buf));
+    bzero(buf,sizeof(buf));
+    nrecv(nw,buf,sizeof(buf));
+
+    // 检查文件是否存在于文件列表中
+    if (strstr(buf, get) == NULL) {
+        printf("File %s does not exist in the current directory on the server.\n", get);
+        return;
+    }
 
 	//设置数据传输方式ASCLL
 	char *filename = get;
