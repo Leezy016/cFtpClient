@@ -10,13 +10,13 @@ gcc
 目前实现的功能：  
 1）用户登录（用户名+密码）  
 2）显示目录：ls  
-3）打印当前工作目录名称
-3）转换目录：cd  
+3）打印当前工作目录名称  
+4）转换目录：cd  
 &emsp;&emsp;到指定目录：cd /dirName  
 &emsp;&emsp;到上一级目录：cd ..  
 &emsp;&emsp;到当前目录：cd .  
-4）下载文件：get fileName  
-5）退出客户端：bye  
+5）下载文件：get fileName  
+6）退出客户端：bye  
 
 
 ### 运行方法
