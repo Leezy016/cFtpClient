@@ -3,6 +3,7 @@
 ### 环境
 mac Zsh  
 c+Linux  
+gcc  
 
 ### 实现内容
 参考 FTP 协议标准，使用TCP Socket的基础ftp客户端  
