@@ -1,7 +1,7 @@
 # cFtpClient
 
 ### 环境
-mac Zsh  
+(a) mac Zsh  (b) Ubuntu 18.04
 c+Linux  
 gcc  
 
