@@ -13,32 +13,13 @@ typedef struct NetWork
 	struct sockaddr_in addr; // 通信地址
 }NetWork;
 
+
+
 // 创建网络连接
 NetWork* open_network(char c_or_s,int type,char* ip,uint16_t port);
 
 // TCP的server专用
 NetWork* accept_network(NetWork* nw);
-
-// 发送数据
-int nsend(NetWork* nw,void* buf,uint32_t len);
-
-// 接收数据
-int nrecv(NetWork* nw,void* buf,uint32_t len);
-
-// 关闭网络连接
-void close_network(NetWork* nw);
-
-//配置ftp会话参数
-void ex(void);
-
-//显示当前目录
-void ls(void);
-
-//改变目录
-void cd_to(char* cd);
-
-//下载
-void download(char* get);
 
 #endif//NETWORK_H
 
