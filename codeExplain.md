@@ -1,8 +1,8 @@
-Network.h  
+network.h  
 定义了用于网络通信的结构体 NetWork和4个函数  
-Network.c  
+network.c  
 用于网络通信的4个函数的具体实现  
-Ftpclient.c  
+ftpclient.c  
 写了实现ftp客户端，列表、变换目录、下载、退出功能的函数,以及用Mian()函数实现ftp客户端在命令行中与用户的交互  
 
 ### Network.c
