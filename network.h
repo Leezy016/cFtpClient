@@ -17,16 +17,11 @@ typedef struct NetWork
 
 // 创建网络连接
 NetWork* open_network(char c_or_s,int type,char* ip,uint16_t port);
-
 //关闭网络连接
 void close_network(NetWork* nw);
-
 //发送数据
 int nsend(NetWork* nw,void* buf,uint32_t len);
-
 //接收数据
 int nrecv(NetWork* nw,void* buf,uint32_t len);
 
 #endif//NETWORK_H
-
-
