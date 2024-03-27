@@ -1,6 +1,6 @@
 #ifndef NETWORK_H
 #define NETWORK_H
-#include <netinet/in.h>
+#include <netinet/in.h>//Linux Socket
 #include <stdint.h>
 
 typedef struct sockaddr* SP;
