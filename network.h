@@ -14,7 +14,8 @@ typedef struct NetWork
 }NetWork;
 
 
-
+//使用TCP建立连接和进行可靠传输
+//
 // 创建网络连接
 NetWork* open_network(char c_or_s,int type,char* ip,uint16_t port);
 //关闭网络连接

@@ -11,8 +11,8 @@
 #include <sys/socket.h>//socket创建与操作
 #include "network.h"
 
-NetWork* nw;
-NetWork* data_nw=NULL;
+NetWork* nw;//命令通道
+NetWork* data_nw=NULL;//数据通道
 unsigned char ip1,ip2,ip3,ip4,port1,port2;
 int list_len = 0;
 char buf[256] = {};
@@ -38,15 +38,15 @@ void cd(char* dirName);
 void get(char* fileName);
 
 
-int main(int argc,char* argv[])
-{	
+int main(int argc,char* argv[]){
 	printf("Welcome, type \'help\' for help message.\n");
 	printf("\n");
 	//用c_ip存储用户输入的ftp服务器ip地址
 	char c_ip[40] = {};
 	strcpy(c_ip,argv[1]);
 
-	//创建连接
+	//建立连接
+	//
 	nw = open_network('c',SOCK_STREAM,c_ip,21);
 	if(NULL == nw)
 	{
@@ -57,7 +57,8 @@ int main(int argc,char* argv[])
 	printf("Connected to %s\n",c_ip);
 	bufr();
 
-	//用户登陆
+	//身份验证
+	//
 	for(;;)
 	{
 		//用user存储输入的用户名
@@ -102,31 +103,52 @@ int main(int argc,char* argv[])
 		}
 	}
 
+	//数据传输
+	//
 	serUTF8();	
-
 	char cmd[40] = {};
 	while(1)
 	{
-		//获取单命令
+		//判断命令输入正误
+		int flag=1;
 		printf("ftp> ");
 		gets(cmd);
-		if(strcmp(cmd,"bye")==0)
+		//获取单命令
+		if(strcmp(cmd,"bye")==0)//结束程序
 			break;
-		if(strcmp(cmd,"ls")==0)
+		if(strcmp(cmd,"ls")==0){
 			ls();
-		if(strcmp(cmd,"pwd")==0)
+			flag=0;
+		}
+		if(strcmp(cmd,"pwd")==0){
 			pwd();
-		if(strcmp(cmd,"help")==0)
+			flag=0;
+		}
+		if(strcmp(cmd,"help")==0){
 			help();
+			flag=0;
+		}
 		//获取命令+1参数
 		char *cmd1 = malloc(20);
 		char *path = malloc(100);
 		sscanf(cmd,"%s %s",cmd1,path);
-		if(strcmp(cmd1,"cd") == 0)
+		if(strcmp(cmd1,"cd") == 0){
 			cd(path);
-		if(strcmp(cmd1,"get") == 0)		
+			flag=0;
+		}
+		if(strcmp(cmd1,"get") == 0){	
 			get(path);
+			flag=0;
+		}
+		//命令输入错误，显示提示信息
+		if(flag){
+			printf("unrecognized command\n");
+			help();
+		}
 	}
+	//结束连接
+	//
+	close_network(nw);
 	printf("221 Goodbye.\n");
 }
 
@@ -140,13 +162,13 @@ void bufr(void)
 void help(void)
 {
 	printf("--------------------------------\n");
-	printf("This is an FTP client program designed for a university computer network course.\n");
-	printf("If you have any problem during use, please:\n");
-	printf("A. read this massage again\n");
-	printf("B. contact me at leezy016@foxmail.com\n");
-	printf("C. use a real FTP client\n");
-	printf("THANK YOU\n");
-	printf("\n");
+	// printf("This is an FTP client program designed for a university computer network course.\n");
+	// printf("If you have any problem during use, please:\n");
+	// printf("A. read this massage again\n");
+	// printf("B. contact me at leezy016@foxmail.com\n");
+	// printf("C. use a real FTP client\n");
+	// printf("THANK YOU\n");
+	// printf("\n");
 	printf("Commands and usage:\n");
 	printf("ls:   Print subdirectories and files in the working directory\n");
 	printf("pwd:  Print the name of the working directory\n");
@@ -195,6 +217,7 @@ void pwd(void)
 void ls(void)
 {
 	//接收服务器ip地址和数据连接端口号
+	//被动模式，使用命令通道进行进行连接
 	sprintf(buf,"PASV\n");
 	nsend(nw,buf,strlen(buf));
 	bzero(buf,sizeof(buf));
@@ -258,13 +281,13 @@ void get(char* fileName)
 	// nrecv(nw,buf,sizeof(buf));
 	//puts(buf);
 
-	//接收服务器ip地址和数据连接端口号
+	//接收服务器ip地址和数据连接端口号，被动模式
 	sprintf(buf,"PASV\n");
 	nsend(nw,buf,strlen(buf));
 	bzero(buf,sizeof(buf));
 	nrecv(nw,buf,sizeof(buf));
 	//puts(buf);
-	
+	//ip和端口号转换
 	unsigned char ip1,ip2,ip3,ip4,port1,port2;
 	sscanf(strchr(buf,'(')+1,"%hhu,%hhu,%hhu,%hhu,%hhu,%hhu",&ip1,&ip2,&ip3,&ip4,&port1,&port2);
 	sprintf(buf,"%hhu.%hhu.%hhu.%hhu",ip1,ip2,ip3,ip4);
