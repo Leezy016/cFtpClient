@@ -5,7 +5,7 @@ network.c
 ftpclient.c  
 写了实现ftp客户端，列表、变换目录、下载、退出功能的函数,以及用Mian()函数实现ftp客户端在命令行中与用户的交互  
 
-### Network.c
+### network.c
 open_network函数  
 1.	创建NetWork结构的指针对象nw  
 2.	调用socket函数创建socket对象，得到socket描述符  
@@ -20,8 +20,8 @@ open_network函数
 ##### nrecv函数
 调用recv函数接受服务器消息  
 
-### Ftpclient.c
-##### Main函数
+### ftpclient.c
+##### main函数
 1.将用户从终端输入的ftp服务器ip地址存入c_ip变量  
 2.调用open_network函数创建控制连接  
 （1）连接建立成功，到4  
@@ -52,7 +52,7 @@ open_network函数
 4.	使用buf，循环从数据连接接收当前目录的内容，并输出  
 5.	调用close_network函数，关闭数据连接  
 
-##### Download函数
+##### download函数
 1.从控制连接向ftp服务器发送TYPE A命令，设置数据传输方式ASCLL  
 2.从控制连接向ftp服务器发送SIZE命令，接收文件大小信息，并输出  
 3.从控制连接向ftp服务器发送MDTM命令，接收文件最后修改时间，并输出  
