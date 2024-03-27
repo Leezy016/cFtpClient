@@ -170,7 +170,6 @@ void ex(void)
 {
 	sprintf(buf,"OPTS UTF8 ON\n");
 	nsend(nw,buf,strlen(buf));
-
 	bufr();
 }
 
@@ -208,29 +207,23 @@ void ls(void)
 	//接收服务器ip地址和数据连接端口号
 	sprintf(buf,"PASV\n");
 	nsend(nw,buf,strlen(buf));
-
 	bzero(buf,sizeof(buf));
 	nrecv(nw,buf,sizeof(buf));
 	//227
 	//puts(buf);
 
-	printf("%s",buf);
 	unsigned char ip1,ip2,ip3,ip4,port1,port2;
-
 	//分割ip和端口号
 	sscanf(strchr(buf,'(')+1,"%hhu,%hhu,%hhu,%hhu,%hhu,%hhu",&ip1,&ip2,&ip3,&ip4,&port1,&port2);
 	//ip转为点分十进制存储
 	sprintf(buf,"%hhu.%hhu.%hhu.%hhu",ip1,ip2,ip3,ip4);
-
 	//创建数据连接，端口由2个8b到1个16b
 	NetWork* data_nw = open_network('c',SOCK_STREAM,buf,port1*256+port2);
 	
 	//发送ls -al给服务器
 	sprintf(buf,"LIST -al\n");
 	nsend(nw,buf,strlen(buf));
-
-	printf("200 PORT command successful. Consider using PASV.\n");
-
+	//printf("200 PORT command successful. Consider using PASV.\n");
 	bufr();//150
 	
 	//循环接收当前目录的内容，并输出
@@ -249,98 +242,51 @@ void ls(void)
 
 void download(char* get)
 {
-    //发送LIST命令获取文件列表
-	//
-    //接收服务器ip地址和数据连接端口号
-	sprintf(buf,"PASV\n");
-	nsend(nw,buf,strlen(buf));
-	bzero(buf,sizeof(buf));
-	nrecv(nw,buf,sizeof(buf));
-	//227
-
-	unsigned char ip1,ip2,ip3,ip4,port1,port2;
-	//分割ip和端口号
-	sscanf(strchr(buf,'(')+1,"%hhu,%hhu,%hhu,%hhu,%hhu,%hhu",&ip1,&ip2,&ip3,&ip4,&port1,&port2);
-	//ip转为点分十进制存储
-	sprintf(buf,"%hhu.%hhu.%hhu.%hhu",ip1,ip2,ip3,ip4);
-
-	//创建数据连接，端口由2个8b到1个16b
-	data_nw = (NetWork*)malloc(sizeof(NetWork));
-	data_nw = open_network('c',SOCK_STREAM,buf,port1*256+port2);
-	
-	//发送ls -al给服务器
-	sprintf(buf,"LIST -al\n");
-	nsend(nw,buf,strlen(buf));
-	//150
-
-    //检查文件是否存在于文件列表中
-	int exist=0;
-	int ret = 0;
-	bzero(buf,sizeof(buf));
-	while(ret = nrecv(data_nw,buf,sizeof(buf)))
-	{
-		if (strstr(buf, get) != NULL)
-		{
-			exist=1;
-			printf("found\n");
-			bzero(buf,sizeof(buf));
-			break;
-		}
-		else
-		{
-			bzero(buf,sizeof(buf));
-		}			
-	}
-	close_network(data_nw);	
-
-	//文件不存在，返回
-    if (!exist) {
-        printf("File %s does not exist in the current directory on the server.\n", get);
-        return;
-    }	
-
-	//设置数据传输方式ASCLL
+    //设置数据传输方式ASCLL
 	char *filename = get;
 	sprintf(buf,"TYPE A\n");
 	nsend(nw,buf,strlen(buf));
-	bufr();
+	bzero(buf,sizeof(buf));
+	nrecv(nw,buf,sizeof(buf));
+	//puts(buf);
 
 	//获取文件大小
-	bzero(buf,sizeof(buf));
 	sprintf(buf,"SIZE %s\n",filename);
 	nsend(nw,buf,strlen(buf));
-	bufr();
+	bzero(buf,sizeof(buf));
+	nrecv(nw,buf,sizeof(buf));
+	//puts(buf);
+
+	if (strstr(buf, "550")!=NULL) {
+        printf("File %s does not exist in the current directory on the server.\n", get);
+        return;
+    }
 
 	//获取文件最后修改时间
-	sprintf(buf,"MDTM %s\n",filename);
-	nsend(nw,buf,strlen(buf));
-	bufr();
+	// sprintf(buf,"MDTM %s\n",filename);//文件最后修改时间
+	// nsend(nw,buf,strlen(buf));
+	// bzero(buf,sizeof(buf));
+	// nrecv(nw,buf,sizeof(buf));
+	//puts(buf);
 
 	//接收服务器ip地址和数据连接端口号
 	sprintf(buf,"PASV\n");
 	nsend(nw,buf,strlen(buf));
 	bzero(buf,sizeof(buf));
 	nrecv(nw,buf,sizeof(buf));
-	puts(buf);
-	printf("ip and port get\n");
-
-	unsigned char ip1_,ip2_,ip3_,ip4_,port1_,port2_;
-	sscanf(strchr(buf,'(')+1,"%hhu,%hhu,%hhu,%hhu,%hhu,%hhu",&ip1_,&ip2_,&ip3_,&ip4_,&port1_,&port2_);
-	bzero(buf,sizeof(buf));
-	sprintf(buf,"%hhu.%hhu.%hhu.%hhu",ip1_,ip2_,ip3_,ip4_);	
-	printf("ip and port calculated\n");
+	//puts(buf);
+	
+	unsigned char ip1,ip2,ip3,ip4,port1,port2;
+	sscanf(strchr(buf,'(')+1,"%hhu,%hhu,%hhu,%hhu,%hhu,%hhu",&ip1,&ip2,&ip3,&ip4,&port1,&port2);
+	sprintf(buf,"%hhu.%hhu.%hhu.%hhu",ip1,ip2,ip3,ip4);
 
 	//创建数据连接
-	data_nw = (NetWork*)malloc(sizeof(NetWork));
-	data_nw = open_network('c',SOCK_STREAM,buf,port1_*256+port2_);
-	printf("connect success fd = %d\n",data_nw->fd);
+	NetWork* data_nw = open_network('c',SOCK_STREAM,buf,port1*256+port2);
+	//printf("connect success fd = %d\n",data_nw->fd);
 
 	sprintf(buf,"RETR %s\n",filename);//准备文件副本
 	nsend(nw,buf,strlen(buf));
-
-	bzero(buf,sizeof(buf));
-	nrecv(nw,buf,sizeof(buf));
-	puts(buf);
+	bufr();
 
 	int fd = open(filename,O_WRONLY|O_CREAT|O_TRUNC,0644);
 	//尝试以只写方式打开filename指定的文件。如果文件不存在，则创建它。如果文件已经存在，则将其内容清空。
@@ -351,7 +297,7 @@ void download(char* get)
 	}
 
 	//循环从数据连接接收文件内容并写入本地文件
-	ret = 0;
+	int ret = 0;
 	bzero(buf,sizeof(buf));
 	while(ret = nrecv(data_nw,buf,sizeof(buf)))
 	{
@@ -362,10 +308,5 @@ void download(char* get)
 
 	//关闭数据连接
 	close_network(data_nw);
-	free(data_nw);
-	data_nw = NULL;
-
-	bzero(buf,sizeof(buf));
-	nrecv(nw,buf,sizeof(buf));
-	printf("%s",buf);//226
+	bufr();//226
 }
