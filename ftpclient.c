@@ -16,10 +16,6 @@ NetWork* data_nw=NULL;//数据通道
 unsigned char ip1,ip2,ip3,ip4,port1,port2;
 int list_len = 0;
 char buf[256] = {};
-typedef struct List
-{
-	char filename[40];
-}List;
 
 //清空buf,接收数据并输出
 void bufr(void);
@@ -48,8 +44,7 @@ int main(int argc,char* argv[]){
 	//建立连接
 	//
 	nw = open_network('c',SOCK_STREAM,c_ip,21);
-	if(NULL == nw)
-	{
+	if(NULL == nw){
 		printf("open network socket null!\n");
 		return -1;
 	}
@@ -59,8 +54,7 @@ int main(int argc,char* argv[]){
 
 	//身份验证
 	//
-	for(;;)
-	{
+	for(;;){
 		//用user存储输入的用户名
 		char user[20] = {};
 		printf("Name (%s):",c_ip);
@@ -72,8 +66,7 @@ int main(int argc,char* argv[]){
 		bufr();
 
 		//用户名错误则重新输入
-		if(strstr(buf,"530"))
-		{
+		if(strstr(buf,"530")){
 			continue;
 		}
 
@@ -97,8 +90,7 @@ int main(int argc,char* argv[]){
 		bufr();
 
 		//登陆成功跳出循环
-		if(strstr(buf,"530") == NULL)
-		{
+		if(strstr(buf,"530") == NULL){
 			break;
 		}
 	}
@@ -107,8 +99,7 @@ int main(int argc,char* argv[]){
 	//
 	serUTF8();	
 	char cmd[40] = {};
-	while(1)
-	{
+	while(1){
 		//判断命令输入正误
 		int flag=1;
 		printf("ftp> ");
@@ -152,15 +143,13 @@ int main(int argc,char* argv[]){
 	printf("221 Goodbye.\n");
 }
 
-void bufr(void)
-{
+void bufr(void){
 	bzero(buf,sizeof(buf));
 	nrecv(nw,buf,sizeof(buf));
 	printf("%s",buf);
 }
 
-void help(void)
-{
+void help(void){
 	printf("--------------------------------\n");
 	// printf("This is an FTP client program designed for a university computer network course.\n");
 	// printf("If you have any problem during use, please:\n");
@@ -182,15 +171,13 @@ void help(void)
 	printf("--------------------------------\n");
 }
 
-void serUTF8(void)
-{
+void serUTF8(void){
 	sprintf(buf,"OPTS UTF8 ON\n");
 	nsend(nw,buf,strlen(buf));
 	bufr();
 }
 
-void cd(char* cd)
-{
+void cd(char* cd){
 	char *dir = cd;
 	//如果用户输入“cd ..”, 将当前目录切换为上级目录
 	if(strcmp(dir,"..")==0)
@@ -206,18 +193,16 @@ void cd(char* cd)
 	bufr();
 }
 
-void pwd(void)
-{
+void pwd(void){
 	sprintf(buf,"PWD\n");
 	nsend(nw,buf,strlen(buf));
 	bufr();
 }
 
 
-void ls(void)
-{
+void ls(void){
 	//接收服务器ip地址和数据连接端口号
-	//被动模式，使用命令通道进行进行连接
+	//被动模式，使用命令通道进行连接
 	sprintf(buf,"PASV\n");
 	nsend(nw,buf,strlen(buf));
 	bzero(buf,sizeof(buf));
@@ -242,8 +227,7 @@ void ls(void)
 	//循环接收当前目录的内容，并输出
 	int ret = 0;
 	bzero(buf,sizeof(buf));
-	while(ret = nrecv(data_nw,buf,sizeof(buf)))
-	{
+	while(ret = nrecv(data_nw,buf,sizeof(buf))){
 		printf("%s",buf);
 		bzero(buf,sizeof(buf));
 	}
@@ -253,8 +237,7 @@ void ls(void)
 	close_network(data_nw);	
 }
 
-void get(char* fileName)
-{
+void get(char* fileName){
     //设置数据传输方式ASCLL
 	sprintf(buf,"TYPE A\n");
 	nsend(nw,buf,strlen(buf));
@@ -269,13 +252,13 @@ void get(char* fileName)
 	nrecv(nw,buf,sizeof(buf));
 	//puts(buf);
 
-	if (strstr(buf, "550")!=NULL) {
+	if (strstr(buf, "550")!=NULL){
         printf("File %s does not exist in the current directory on the server.\n", fileName);
         return;
     }
 
 	//获取文件最后修改时间
-	// sprintf(buf,"MDTM %s\n",filename);//文件最后修改时间
+	// sprintf(buf,"MDTM %s\n",filename);
 	// nsend(nw,buf,strlen(buf));
 	// bzero(buf,sizeof(buf));
 	// nrecv(nw,buf,sizeof(buf));
@@ -296,14 +279,13 @@ void get(char* fileName)
 	NetWork* data_nw = open_network('c',SOCK_STREAM,buf,port1*256+port2);
 	//printf("connect success fd = %d\n",data_nw->fd);
 
-	sprintf(buf,"RETR %s\n",fileName);//准备文件副本
+	//准备文件副本
+	sprintf(buf,"RETR %s\n",fileName);
 	nsend(nw,buf,strlen(buf));
 	bufr();
-
 	int fd = open(fileName,O_WRONLY|O_CREAT|O_TRUNC,0644);
 	//尝试以只写方式打开filename指定的文件。如果文件不存在，则创建它。如果文件已经存在，则将其内容清空。
-	if(0 > fd)
-	{
+	if(0 > fd){
 		perror("open");
 		return;
 	}
@@ -311,8 +293,7 @@ void get(char* fileName)
 	//循环从数据连接接收文件内容并写入本地文件
 	int ret = 0;
 	bzero(buf,sizeof(buf));
-	while(ret = nrecv(data_nw,buf,sizeof(buf)))
-	{
+	while(ret = nrecv(data_nw,buf,sizeof(buf))){
 		write(fd,buf,ret);
 		bzero(buf,sizeof(buf));
 	}
