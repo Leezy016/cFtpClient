@@ -24,7 +24,7 @@ typedef struct List
 //清空buf,接收数据并输出
 void bufr(void);
 //服务器端设置UTF-8模式
-void ex(void);
+void serUTF8(void);
 
 //显示帮助
 void help(void);
@@ -33,9 +33,9 @@ void pwd(void);
 //显示工作目录下的内容
 void ls(void);
 //改变目录
-void cd_to(char* cd);
+void cd(char* dirName);
 //下载文件
-void download(char* get);
+void get(char* fileName);
 
 
 int main(int argc,char* argv[])
@@ -102,7 +102,7 @@ int main(int argc,char* argv[])
 		}
 	}
 
-	ex();	
+	serUTF8();	
 
 	char cmd[40] = {};
 	while(1)
@@ -123,9 +123,9 @@ int main(int argc,char* argv[])
 		char *path = malloc(100);
 		sscanf(cmd,"%s %s",cmd1,path);
 		if(strcmp(cmd1,"cd") == 0)
-			cd_to(path);
+			cd(path);
 		if(strcmp(cmd1,"get") == 0)		
-			download(path);
+			get(path);
 	}
 	printf("221 Goodbye.\n");
 }
@@ -160,14 +160,14 @@ void help(void)
 	printf("--------------------------------\n");
 }
 
-void ex(void)
+void serUTF8(void)
 {
 	sprintf(buf,"OPTS UTF8 ON\n");
 	nsend(nw,buf,strlen(buf));
 	bufr();
 }
 
-void cd_to(char* cd)
+void cd(char* cd)
 {
 	char *dir = cd;
 	//如果用户输入“cd ..”, 将当前目录切换为上级目录
@@ -230,10 +230,9 @@ void ls(void)
 	close_network(data_nw);	
 }
 
-void download(char* get)
+void get(char* fileName)
 {
     //设置数据传输方式ASCLL
-	char *filename = get;
 	sprintf(buf,"TYPE A\n");
 	nsend(nw,buf,strlen(buf));
 	bzero(buf,sizeof(buf));
@@ -241,14 +240,14 @@ void download(char* get)
 	//puts(buf);
 
 	//获取文件大小
-	sprintf(buf,"SIZE %s\n",filename);
+	sprintf(buf,"SIZE %s\n",fileName);
 	nsend(nw,buf,strlen(buf));
 	bzero(buf,sizeof(buf));
 	nrecv(nw,buf,sizeof(buf));
 	//puts(buf);
 
 	if (strstr(buf, "550")!=NULL) {
-        printf("File %s does not exist in the current directory on the server.\n", get);
+        printf("File %s does not exist in the current directory on the server.\n", fileName);
         return;
     }
 
@@ -274,11 +273,11 @@ void download(char* get)
 	NetWork* data_nw = open_network('c',SOCK_STREAM,buf,port1*256+port2);
 	//printf("connect success fd = %d\n",data_nw->fd);
 
-	sprintf(buf,"RETR %s\n",filename);//准备文件副本
+	sprintf(buf,"RETR %s\n",fileName);//准备文件副本
 	nsend(nw,buf,strlen(buf));
 	bufr();
 
-	int fd = open(filename,O_WRONLY|O_CREAT|O_TRUNC,0644);
+	int fd = open(fileName,O_WRONLY|O_CREAT|O_TRUNC,0644);
 	//尝试以只写方式打开filename指定的文件。如果文件不存在，则创建它。如果文件已经存在，则将其内容清空。
 	if(0 > fd)
 	{
