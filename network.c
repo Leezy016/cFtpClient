@@ -36,14 +36,12 @@ NetWork* open_network(char c_or_s,int type,char* ip,uint16_t port)
 	nw->addr.sin_addr.s_addr = inet_addr(ip);
 	nw->len = sizeof(nw->addr);
 	nw->type = type;
-
 	if(connect(nw->fd,(SP)&nw->addr,nw->len))
 	{
 		perror("network connect");
 		free(nw);
 		return NULL;
-	}	
-
+	}
 	return nw;
 }
 
