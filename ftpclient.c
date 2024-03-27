@@ -55,7 +55,6 @@ int main(int argc,char* argv[])
 	}
 
 	printf("Connected to %s\n",c_ip);
-
 	bufr();
 
 	//用户登陆
@@ -69,7 +68,6 @@ int main(int argc,char* argv[])
 		//将用户名发送给服务器
 		sprintf(buf,"USER %s\n",user);//写缓冲区
 		nsend(nw,buf,strlen(buf));
-
 		bufr();
 
 		//用户名错误则重新输入
@@ -125,13 +123,9 @@ int main(int argc,char* argv[])
 		char *path = malloc(100);
 		sscanf(cmd,"%s %s",cmd1,path);
 		if(strcmp(cmd1,"cd") == 0)
-		{
 			cd_to(path);
-		}
-		if(strcmp(cmd1,"get") == 0)
-		{
+		if(strcmp(cmd1,"get") == 0)		
 			download(path);
-		}
 	}
 	printf("221 Goodbye.\n");
 }
@@ -176,20 +170,17 @@ void ex(void)
 void cd_to(char* cd)
 {
 	char *dir = cd;
-
 	//如果用户输入“cd ..”, 将当前目录切换为上级目录
 	if(strcmp(dir,"..")==0)
 	{
 		sprintf(buf,"CDUP %s\n",dir);
 	}
-
 	//否则，将当前目录切换为用户指定目录
 	else
 	{
 		sprintf(buf,"CWD %s\n",dir);
 	}
 	nsend(nw,buf,strlen(buf));
-
 	bufr();
 }
 
@@ -197,7 +188,6 @@ void pwd(void)
 {
 	sprintf(buf,"PWD\n");
 	nsend(nw,buf,strlen(buf));
-
 	bufr();
 }
 
